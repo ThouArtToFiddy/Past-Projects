@@ -1,0 +1,12 @@
+insert apple
+insert pear
+insert peach
+insert grape
+insert orange
+get 0
+get 1
+get 2
+contains orange
+contains grape
+contains banana
+exit

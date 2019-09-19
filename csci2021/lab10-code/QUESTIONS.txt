@@ -1,0 +1,149 @@
+                           __________________
+
+                            LAB 10 QUESTIONS
+                           __________________
+
+
+- Name: (Jerry Wu)
+- NetID: (wu000169)
+
+Answer the questions below according to the lab specification. Write
+your answers directly in this text file and submit it to complete the
+lab.
+
+
+PROBLEM 1: colmins_main.c
+=========================
+
+(A) Timing
+~~~~~~~~~~
+
+  Compile and run the provided `colmins_main' program as indicated
+  below.
+
+  ,----
+  | > make
+  | gcc -Wall -g -Og -c colmins_main.c
+  | gcc -Wall -g -Og -c colmins_funcs.c
+  | gcc -Wall -g -Og -c matvec_util.c
+  | gcc -Wall -g -Og -o colmins_main colmins_main.o colmins_funcs.o matvec_util.o
+  |
+  | > ./colmins_main 8000 16000
+  `----
+
+  Notice that the size of the matrix being used is quite large: 8000
+  rows by 16000 columns. You may time other sizes but 8000x16000 is
+  usually large enough to get beyond obvious cache effects on most
+  machines.
+
+  Run the program several times to ensure that you get a good sense of
+  what it's normal behavior is like: there should be timing differences
+  between the different functions reported on.
+
+  Paste the timing results produced below for `./colmins_main 8000
+  16000'
+
+  col_mins1 CPU usage: 2.1562e+00 sec
+  col_mins2 CPU usage: 2.1719e+00 sec
+  col_mins3 CPU usage: 2.1562e+00 sec
+  col_mins4 CPU usage: 5.7812e-01 sec
+  col_mins5 CPU usage: 2.5000e-01 sec
+
+
+
+(B) Tricks
+~~~~~~~~~~
+
+  Examine the source code for `colmins_main.c'.  Identify the technique
+  that is used to avoid a large amount of repeated code to time the
+  multiple functions.
+
+  They used a function pointer to save repeating code
+
+
+Problem 2: Comparisons in colmins_funcs.c
+=========================================
+
+(A) col_mins1 baseline
+~~~~~~~~~~~~~~~~~~~~~~
+
+  Examine the `col_mins1' function in `colmins_funcs.c' and describe the
+  basic approach it uses to solve the problem of finding the minimum of
+  each column of a matrix.
+  - What pattern of access is used? Is this advantageous for the layout
+    of the matrix?
+    The base case uses column then row access, which is slower than going row by columns
+
+  - What local variables are used versus main memory gets/sets?
+    local variables are used to keep track of the array indices, but main memory is used in get and sets
+
+
+(B) col_mins2 Comparison
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+  Examine the differences between `col_mins1' and `col_mins2'.
+  Particularly comment on
+  - Any differences in memory access pattern
+    The pattern remains the same
+  - Any differences in use of local variables/main memory
+    Local variable is used to store the main memory instead of repeated accessing the main memory
+    but it is still being called every single iteration of the double loop.
+
+  - Any differences in speed
+    No real difference in speed
+
+
+(C) col_mins3 Comparison
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+  `col_mins3' implements an optimization called loop unrolling.  In this
+  technique, rather than iterate by single increments, larger steps are
+  taken. Since each iteration uses multiple local variables to store
+  partial results that must eventually be combined. All this is meant to
+  allow the processor to execute more instructions in sequence before
+  looping back which may enable more efficient pipelined and superscalar
+  operations.
+
+  Examine the differences between `col_mins2' and `col_mins3'.
+  Particularly comment on
+  - Any differences in memory access pattern
+    Still going column by rows
+  - Any differences in use of local variables/main memory
+    going through 4 at a time
+  - Any differences in speed that might be due to the new optimizations
+    Still no differences in speed, probably due to the fact that it is accessing by columns, no cache usage
+
+(D) col_mins4 Comparison
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+  `col_mins4' also loop unrolling but in a different way than
+  `col_mins3'.
+
+  Examine the differences between `col_mins3' and `col_mins4'.
+  Particularly comment on
+  - What loops are "unrolled" in each and how does this affect the
+    remaining code?
+    col_mins4 skips the column iteration by 4s, which
+    col_mins3 iterates through each
+  - Any differences in memory access pattern
+    Still going through column by rows
+  - Any differences in use of local variables/main memory
+    4 has to use VSET 4 times in order to update cmins
+
+  - Any differences in speed that might be due to the new optimizations
+    4 is approximately twice as fast as 3 and the base
+
+(E) col_mins5 Comparison: The Real Lesson
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  `col_mins5' is inherently different than all of the other routines.
+  Examine its structure carefully and ensure that you understand it as
+  it may prove useful in an assignment.  Particularly comment on
+  - Any differences in memory access pattern from the others
+    col_mins5 uses row by column access which allows the usage of cache.
+
+  - Any differences in use of local variables/main memory
+    Compared to the base, it uses a variable to keep track of the VGET instead of accessing main every time
+
+  - Any differences in speed that might be due to the new optimizations
+    a whole order of magnitude faster due to row by column access

@@ -1,0 +1,1 @@
+//Drawing class contains the main method, minimize and open the Jframe again if the fractal doesnt draw perfectly

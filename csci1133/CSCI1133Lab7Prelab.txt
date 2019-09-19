@@ -1,0 +1,29 @@
+Mystery Box:
+Returns a new string with all the numbers removed
+
+Warmup 1
+>>> s = "mississippi"
+>>> s
+'mississippi'
+>>> s.count("s")
+4
+
+Warmup 2
+>>> for x in range(s.count("iss")):
+...     s=s.replace("iss","ox")
+...
+>>>
+>>> s
+'moxoxippi'
+
+Warmup 3
+>>> s.find("p")
+8
+>>>
+
+Warmup 4	
+>>> s = "       PYTHON       "
+>>> s
+'       PYTHON       '
+>>>
+

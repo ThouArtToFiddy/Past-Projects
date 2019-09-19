@@ -1,0 +1,422 @@
+                           __________________
+
+                            LAB 02 QUESTIONS
+                           __________________
+
+
+- Name: (Jerry Wu)
+- NetID: (wu000169)
+
+Answer the questions below according to the lab specification. Write
+your answers directly in this text file and submit it to complete the
+lab.
+
+
+PROBLEM 1: Memory in `diagram.c'
+================================
+
+  For each of the C blocks below, give a memory diagram of the block
+  indicating memory locations and contents of cells. These blocks appear
+  in the file `diagram.c' which you can modify to print results if you
+  want to verify your answers.
+
+  MAKE SURE to accurately express the standard sizes for each of the
+  kinds of variables ON A 64-BIT MACHINE in your diagrams by placing
+  them at appropriate memory addresses that are tightly packed. A
+  reminder: on 64-bit machines, all pointers are 64 bits / 8 bytes.
+
+
+A
+~
+
+  ,----
+  |   // BLOCK A
+  |   int a = 5;
+  |   int b = 7;
+  |   double x = 4.5;
+  |   int *ip = &a;
+  |   ip = &b;
+  |   int c = *ip;
+  |   *ip = 19;
+  |   // DRAW MEMORY HERE
+  `----
+
+   ADDR   SYMB  VAL
+  ------------------
+   #1024  a      19
+   #1028  b      7
+   #1032  x      4.5
+   #1040  ip     #1024
+   #1048  c      5
+
+
+
+B
+~
+
+  ,----
+  |   // BLOCK B
+  |   int arr[4] = {12, 14, 16, 18};
+  |   int *arp = arr;
+  |   int brr = 11;
+  |   arr[1] = 23;
+  |   arp[3] = 29;
+  |   arp = &arr[2];
+  |   *arp = 3;
+  |   // DRAW MEMORY HERE
+  `----
+
+   ADDR   SYMB      VAL
+  ----------------------
+   #2000  `arr[0]'   12
+   #2004  `arr[1]'   23
+   #2008  `arr[2]'   3
+   #2012  `arr[3]'   29
+   #2016   arp       #2008
+   #2024   brr       11
+
+
+
+
+C
+~
+
+  ,----
+  |   // BLOCK C
+  |   char str[8] = "hello";
+  |   str[5] = 'w';
+  |   char *cp = str + 6;
+  |   *cp = '\0';
+  |   str[0] = 'y';
+  |   // DRAW MEMORY HERE
+  `----
+
+   ADDR   SYMB      VAL
+  -----------------------
+   #3092  cp        #3106
+   #3100  `str[0]'  y
+   #3101  `str[1]'  e
+   #3102  `str[2]'  l
+   #3103  `str[3]'  l
+   #3104  `str[4]'  o
+   #3105  `str[5]'  w
+   #3106  `str[6]'  \0
+   #3107  `str[7]'  ?
+
+
+PROBLEM 2: Linked List Application
+==================================
+
+  This problem deals with small application spread across three files:
+  - list.h declares types and functions
+  - list_funcs.c defines linked list functions
+  - list_main.c has a usable main() function
+  You will need to compile the two C files together to produce an
+  executable program as in
+  ,----
+  | gcc list_main.c list_funcs.c
+  `----
+
+  Study the code in these and answer the following questions.
+
+
+A
+~
+
+  In `list_main.c', a function related to `scanf()' is used to read
+  input. Look up this function and describe its first argument. Also
+  mention what else this function is good for and what it returns when
+  the end of input is reached.
+
+  fscanf is being used to scan for input. Its first argument is stdin, which takes user input.
+  This function is good for scanning a file. It returns EOF when the end of input is reached
+
+
+
+
+B
+~
+
+  In `list_main.c', a function from the standard C library is used to
+  compare strings (character arrays). Describe this function, how to
+  call it, and its return value. Describe how it is used to identify
+  commands typed by a user in list_main.c. Also determine whether this
+  function gives any guidance on the sorting order of strings.
+
+  This function is strcmp(x,y), where it compares strings x and y with each other, and returns 0 if they are equal, and >0 when x is greater than y, and <0 when otherwise.
+  Strings seem to be sorted lexicographically.
+
+C
+~
+
+  Examine where a `list_t' variable is declared in `list_main.c'.  Is
+  the list a stack variable or one that has memory dynamically allocated
+  with malloc() and then subsequently free()'d?  Examine the convention
+  of the `list_init()' function in `list_funcs.c'.  Does this function
+  allocate any memory or simply operate on an existing list_t? How is it
+  used with the `list_t' declared in `main()'?
+
+  list seems to be a stack variable. list_funcs.c operates on an existing list_t.
+  It is used to initialize list in main().
+
+
+D
+~
+
+  Examine the `list.h' header file. Describe the C structs that you see
+  there. What fields does a `list_t' have? What fields does a `node_t'
+  have?  What is the maximum length of strings that can be stored in the
+  linked list according to the definitions of the types?
+
+  There are node struct and the struct for the list itself. Nodes have their value and the next node.
+  Lists have the length and head.
+
+
+E
+~
+
+  Examine functions such as `list_insert()' in `list_funcs.c' which
+  allocate nodes. How are they allocated?  How is the size of nodes
+  determined so that the correct amount of space is allocated? Where and
+  how is the space allocated for nodes de-allocated (which function)?
+
+  They are allocated by using malloc. The size is determined by the sizeof function.
+  The list_clear function frees all nodes that are useless.
+
+
+PROBLEM 3: Linked List Extension
+================================
+
+  The files for the linked list application have places indicating where
+  a `list_contains()' function and a `contains' command should be
+  implemented.  Complete this implementation which will require you to
+  write some C code in both `list_funcs.c' and `list_main.c'.  It will
+  also require you to do some string comparisons.
+
+  Paste the following below for you answer
+  1. Your code for list_contains()
+  int list_contains(list_t *list, char *query){
+    node_t *cur = list->head;
+    while (cur!=NULL){
+        if(strcmp(query,cur->data)==0){
+          return 1;
+        }
+        cur = cur->next;
+    }
+    return 0;
+  }
+  2. Code you added to main() to enable the "contains" command to work
+  else if( strcmp("contains", cmd)==0 ){   // contains command
+    if(echo){
+      printf("contains\n");
+    }
+    char query;
+    fscanf(stdin,"%s",&query);
+    int x = list_contains(&list, &query);
+    if (x == 1){
+      printf("The list did contain %s.\n", &query);
+    }
+    else{
+     printf("The list did not contain %s.\n",&query);
+    }
+  }
+
+  3. A sample session of the main application where several inserts are
+     done and contains is used to show some items are present and not
+     present
+     list> insert apple
+    list> insert pear
+    list> insert peach
+    list> insert orange
+    list> contains apple
+    The list did contain apple.
+    list> contains pear
+    The list did contain pear.
+    list> contains peach
+    The list did contain peach.
+    list> contains strawberry
+    The list did not contain strawberry.
+    list>
+
+
+PROBLEM 4: Command Echoing
+==========================
+
+  Interactive applications like `list_main' are made greatly more useful
+  if they can be "scripted": made to perform without the need of human
+  interaction.  A common means of doing this is provide a file with
+  commands to read in it rather than typing directly.  While nothing in
+  `list_main' appears to allow for this, with a few command line tricks
+  we can replace typed input with the contents of the file. Such as
+  below where a *pipe |* is used.
+
+  ,----
+  | > gcc -o list_main list_funcs.c list_main.c
+  |
+  | > cat commands.txt              # show contents of commands.txt file
+  | insert rolf
+  | insert kermit
+  | insert fozzy
+  | print
+  | get 2
+  | get 7
+  | contains kermit
+  | contains scooter
+  | delete scooter
+  | exit
+  |
+  | > cat commands.txt | ./list_main     # use commands.txt as input for list_main
+  | Linked List Demo
+  | Commands:
+  |   print:          shows the current contents of the list
+  |   clear:          eliminates all elements from the list
+  |   exit:           exit the program
+  |   insert thing:   inserts the given string into the list
+  |   get index:      get the item at the given index
+  |   contains thing: determine if the given thing is in the list
+  |                   (NOT YET IMPLEMENTED)
+  |
+  | list> list> list> list> 0: fozzy    # several commands read, start of output
+  | 1: kermit
+  | 2: rolf
+  |
+  | list> 2: rolf                       # another command read but not printed
+  |
+  | list> index 7 out of bounds for list size 3
+  | out of bounds
+  |
+  | list> 'kermit' is present
+  |
+  | list> not found
+  |
+  | list> unknown command delete
+  |
+  | list> unknown command scooter
+  `----
+
+  Clearly `list_main' is doing something above but it is hard to
+  determine what because the commands being read are not printed, a
+  feature known as *command echoing*.
+
+  Sprinkled throughout the `list_main.c' code are `printf' statements
+  based on the variable `echo' declared near the top of `main'.  This
+  `echo' variable is set at the top of `main' based on whether command
+  line argument 1 is `-echo'.  When it is, all commands are printed as
+  they are read. This is extremely useful in the present case as
+  illustrated below.
+
+  ,----
+  | > gcc -o list_main list_funcs.c list_main.c    # compile
+  |
+  | > cat commands.txt                             # show commands
+  | insert rolf
+  | insert kermit
+  | insert fozzy
+  | print
+  | get 2
+  | get 7
+  | contains kermit
+  | contains scooter
+  | delete scooter
+  | exit
+  |
+  | > cat commands.txt | ./list_main -echo         # use file as input, echo commands
+  | Linked List Demo
+  | Commands:
+  |   print:          shows the current contents of the list
+  |   clear:          eliminates all elements from the list
+  |   exit:           exit the program
+  |   insert thing:   inserts the given string into the list
+  |   get index:      get the item at the given index
+  |   contains thing: determine if the given thing is in the list
+  |                   (NOT YET IMPLEMENTED)
+  |
+  | list> insert rolf                              # commands are echoed
+  |
+  | list> insert kermit
+  |
+  | list> insert fozzy
+  |
+  | list> print                                    # makes understanding behavior easier
+  | 0: fozzy
+  | 1: kermit
+  | 2: rolf
+  |
+  | list> get 2
+  | 2: rolf
+  |
+  | list> get 7
+  | index 7 out of bounds for list size 3
+  | out of bounds
+  |
+  | list> contains kermit
+  | 'kermit' is present
+  |
+  | list> contains scooter
+  | not found
+  |
+  | list> delete
+  | unknown command delete
+  |
+  | list> scooter
+  | unknown command scooter
+  |
+  | list> exit
+  `----
+
+  *You will need to know how to use command echoing in an assignment* so
+  study how commands are printed carefully.
+
+  Create another text file with commands in it for `list_main'.  Make
+  this file at least 10 lines long with different commands such as
+  `insert' and `get'.  Use the pipe technique shown to feed your
+  commands to the `list_main' with the `-echo' option set. Show your
+  results below.
+
+cat commands.txt | ./list_main -echo
+Linked List Demo
+Commands:
+print:          shows the current contents of the list
+clear:          eliminates all elements from the list
+exit:           exit the program
+insert thing:   inserts the given string into the list
+get index:      get the item at the given index
+contains thing: determine if the given thing is in the list
+                  (NOT YET IMPLEMENTED)
+list> insert apple
+list> insert pear
+list> insert peach
+list> insert grape
+list> insert orange
+list> get 0
+0: apple
+list> get 1
+1: grape
+list> get 2
+2: orange
+list> contains
+The list did contain orange.
+list> contains
+The list did contain grape.
+list> contains
+The list did not contain banana.
+list> exit
+
+
+OPTIONAL PROBLEM
+================
+
+  For fun but no extra credit, add a `int list_remove(list_t *list, char
+  *query)' function and associated `remove' command to the list
+  application.  Keep the following in mind.
+  - Follow the convention that `list_remove()' returns an integer
+    indicating no change was made (0) or something was removed (1)
+  - Do not forget to alter the size of the `list_t' struct on removal.
+  - You will need to call `free()' on the removed node to get rid of it
+    but do so AFTER re-arranging pointers associated with it.
+  - Don't forget special cases such as removing the first node in the
+    list.
+  This is a surprisingly tricky exercise to get the memory use
+  right. You may wish to use valgrind to test whether your program has
+  memory leaks or not. Ask a TA for help with this if it has not been
+  discussed in class yet (valgrind WILL be discussed later).

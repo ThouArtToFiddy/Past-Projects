@@ -1,0 +1,199 @@
+                              ____________
+
+                               A4 WRITEUP
+                              ____________
+
+
+- Name: (Jerry Wu)
+- NetID: (wu000169)
+
+Answer the questions below according to the assignment
+specification. Write your answers directly in this text file and submit
+it along with your code.
+
+
+PROBLEM 1: optimized_matrix_trans_mult_vec()
+============================================
+
+  Do your timing study on apollo.cselabs.umn.edu
+
+
+(A) Paste Source Code
+~~~~~~~~~~~~~~~~~~~~~
+
+  Paste a copy of your source code for the function
+  optimized_matrix_trans_mult_vec() below.
+
+  #include "matvec.h"
+  #include <stdlib.h>
+
+  int optimized_matrix_trans_mult_vec(matrix_t mat, vector_t vec, vector_t res){
+    if(mat.rows != vec.len){
+      printf("mat.rows (%ld) != vec.len (%ld)\n",mat.rows,vec.len);
+      return 1;
+    }
+    if(mat.cols != res.len){
+      printf("mat.cols (%ld) != res.len (%ld)\n",mat.cols,res.len);
+      return 2;
+    }
+    for(int i=0;i<mat.cols;i++){  //reset result vector_t
+      VSET(res,i,0);
+    }
+
+    for(int i=0; i<mat.rows; i++){ //row by column access
+        int veci = VGET(vec,i);
+
+      for(int j=0; j<mat.cols; j+=4){ //pipelining by 4
+        int elij = MGET(mat,i,j);
+        int prod = elij * veci;
+        int curr = VGET(res,j);
+        int next = curr + prod;
+        VSET(res,j, next);        // add on the newest product
+
+        elij = MGET(mat,i,j+1);
+        prod = elij * veci;
+        curr = VGET(res,j+1);
+        next = curr + prod;
+        VSET(res,j+1, next);        // add on the newest product
+
+        elij = MGET(mat,i,j+2);
+        prod = elij * veci;
+        curr = VGET(res,j+2);
+        next = curr + prod;
+        VSET(res,j+2, next);        // add on the newest product
+
+        elij = MGET(mat,i,j+3);
+        prod = elij * veci;
+        curr = VGET(res,j+3);
+        next = curr + prod;
+        VSET(res,j+3, next);        // add on the newest product
+      }
+    }
+    return 0;
+  }
+
+
+
+
+(B) Timing on Apollo
+~~~~~~~~~~~~~~~~~~~~
+
+  Paste a copy of the results of running `mult_bench' on
+  apollo.cselabs.umn.edu in the space below which shows how your
+  performance optimizations improved on the baseline codes.
+
+  wu000169@csel-apollo:/home/wu000169/csci2021/a4-code $ ./mult_benchmark
+  SIZE       BASE       NORM        OPT BSPDUP NSPDUP POINTS
+   512 1.3460e-03 1.0410e-03 5.4700e-04   2.46   1.90      1
+  1024 2.7417e-02 4.4430e-03 2.4070e-03  11.39   1.85      6
+  2048 2.6119e-01 1.7458e-02 1.0625e-02  24.58   1.64     12
+  4096 1.1857e+00 6.9855e-02 4.3174e-02  27.46   1.62     13
+  8192 4.8066e+00 2.8233e-01 1.8066e-01  26.61   1.56     13
+RAW POINTS: 45
+TOTAL POINTS: 35 / 35
+
+(C) Optimizations
+~~~~~~~~~~~~~~~~~
+
+  Describe in some detail the optimizations you used to speed the code
+  up.  THE CODE SHOULD CONTAIN SOME COMMENTS already to describe these
+  but in the section below, describe in English the techniques you used
+  to make the code run faster.  Format your descriptions into discrete
+  chunks such as.
+
+        Optimization 1:
+        Switching access from column by row to row by column.
+        This speeds up the code because C puts arrays row wise in memory, which means its faster due to cache.
+        Optimization 2:
+        Going by 4s in the columns to enable pipelining.
+        This speeds up the code because the cpu can work on multiple parts at once.
+
+
+  Full credit solutions will have a least two optimizations.
+
+
+PROBLEM 2: Timing Search Algorithms
+===================================
+
+  Do your timing study on apollo.cselabs.umn.edu
+
+
+(A) Min Size for Algorithmic Differences
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  Determine size of input array does one start to see a measurable
+  difference in the performance of the linear and logarithmic
+  algorithms.  Produce a timing table which includes all algorithms
+  which clearly demonstrates an uptick in the times associated with some
+  while others remain much lower.  Identify what size this appears to be
+  a occur.
+
+  wu000169@csel-apollo:/home/wu000169/csci2021/a4-code $ ./search_benchmark 6 14 1
+  Length  Searches        array           list            binary          tree
+  64      128             1.6000e-05      1.9000e-05      1.0000e-05      9.0000e-06
+  128     256             5.2000e-05      6.7000e-05      2.2000e-05      1.7000e-05
+  256     512             1.9500e-04      2.5700e-04      4.6000e-05      3.5000e-05
+  512     1024            8.4700e-04      1.0500e-03      1.0000e-04      7.5000e-05
+  1024    2048            3.0500e-03      4.1310e-03      2.1600e-04      1.7500e-04
+  2048    4096            1.2161e-02      5.9578e-02      4.6300e-04      3.5400e-04
+  4096    8192            4.8555e-02      3.3901e-01      9.9800e-04      8.0300e-04
+  8192    16384           1.9546e-01      1.9246e+00      2.1510e-03      1.8480e-03
+  16384   32768           7.8919e-01      8.3425e+00      4.6600e-03      5.7700e-03
+
+  at around the 500 searches mark, the array and list searches
+  are starting to take orders of magnitude longer than the other two searches.
+
+(B) List vs Array
+~~~~~~~~~~~~~~~~~
+
+  Determine whether the linear array and linked list search remain
+  approximately at the same performance level as size increases to large
+  data or whether one begins to become favorable over other. Determine
+  the approximate size at which this divergence becomes obvious. Discuss
+  reasons WHY this difference arises.
+
+  at around 4000 searches the array becomes faster than the linked list search. This is probably due to the
+  fact that accessing elements in a linked list takes time.
+
+
+(C) Tree vs Array
+~~~~~~~~~~~~~~~~~
+
+  Compare the binary array search and binary tree search on small to
+  very large arrays. Determine if there is a size at which the
+  performance of these two begins to diverge. If so, describe why this
+  might be happening based on your understanding of the data structures
+  and the memory system.
+
+  ./search_benchmark 14 20 1 bt
+Length  Searches        binary          tree
+16384   32768           4.6680e-03      4.6240e-03
+32768   65536           1.0158e-02      9.2900e-03
+65536   131072          2.1311e-02      2.4850e-02
+131072  262144          4.8604e-02      7.3168e-02
+262144  524288          1.2011e-01      2.0679e-01
+524288  1048576         2.7421e-01      3.6037e-01
+1048576 2097152         5.3967e-01      8.0978e-01
+
+./search_benchmark 1 7 1 bt
+Length  Searches        binary          tree
+2       4               5.0000e-06      1.0000e-06
+4       8               2.0000e-06      2.0000e-06
+8       16              2.0000e-06      2.0000e-06
+16      32              3.0000e-06      3.0000e-06
+32      64              5.0000e-06      5.0000e-06
+64      128             1.1000e-05      8.0000e-06
+128     256             2.2000e-05      1.7000e-05
+
+at first the tree search seems to be faster at tiny sizes (inconsequential). This is probably due to the algorithms for
+tree searching slightly faster per iteration. However, at larger sizes, tree becomes slower than the binary array search.
+This is likely due to the same reason as the list being slower than unsorted array. Since traversing up and
+down a tree takes like just like traversing a linked list, at huge tree sizes it will eventually factor
+in, especially when it has to look through the whole tree to find a number that is not there. 
+
+(D) OPTIONAL MAKEUP CREDIT
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  If you decided to make use of a table of function pointers/structs
+  which is worth makeup credit, describe your basic design for this
+  below.

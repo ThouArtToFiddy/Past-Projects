@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="testing4">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/antlr4-runtime-4.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/antlr4-annotations-4.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/digraph-parser-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jgrapht-core-1.3.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jheaps-0.9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/org.abego.treelayout.core-1.0.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
